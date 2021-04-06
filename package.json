@@ -1,6 +1,6 @@
 {
   "name": "@appium/gui-libs",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "description": "Untranspiled libs used for Appium GUIs",
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
     "clean": "rimraf package-lock.json && rimraf node_modules && npm install",
     "build": "babel ./lib -d ./dist",
     "lint": "eslint lib",
-    "prepare": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "files": [
     "lib",
