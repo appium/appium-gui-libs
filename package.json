@@ -22,6 +22,10 @@
     "clean": "rimraf package-lock.json && rimraf node_modules && npm install",
     "lint": "eslint lib"
   },
+  "files": [
+    "lib",
+    "babel-config-maker.js"
+  ],
   "dependencies": {
     "@babel/cli": "^7.13.14",
     "antd": "~4.0.4",
