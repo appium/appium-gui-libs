@@ -1,6 +1,6 @@
 {
   "name": "@appium/gui-libs",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "Untranspiled libs used for Appium GUIs",
   "repository": {
     "type": "git",
@@ -20,20 +20,23 @@
   "homepage": "https://github.com/appium/appium-gui-libs",
   "scripts": {
     "clean": "rimraf package-lock.json && rimraf node_modules && npm install",
-    "lint": "eslint lib"
+    "build": "babel ./lib -d ./dist",
+    "lint": "eslint lib",
+    "prepublish": "npm run build"
   },
   "files": [
     "lib",
+    "dist",
     "babel-config-maker.js"
   ],
   "dependencies": {
-    "@babel/cli": "^7.13.14",
     "antd": "~4.0.4",
     "asyncbox": "^2.5.3",
     "react": "^16.13.0",
     "react-dom": "^16.9.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.13.14",
     "@babel/core": "^7.4.0",
     "@babel/eslint-parser": "^7.13.4",
     "@babel/eslint-plugin": "^7.13.0",
