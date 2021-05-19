@@ -7,11 +7,6 @@ function makeBabelConfig (electronVersion) {
         '@babel/plugin-transform-react-jsx',
         '@babel/plugin-transform-runtime',
         'transform-class-properties',
-        ['module-resolver', {
-          alias: {
-            'gui-common': './gui-common',
-          }
-        }],
       ],
       presets: [
         [
