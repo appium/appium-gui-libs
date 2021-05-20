@@ -17,8 +17,8 @@ export function e2eBefore ({appName, log, Application, fs}) {
         appPath = path.join(__dirname, '..', appName, 'release', 'win-ia32-unpacked', 'Appium.exe');
       }
     } else {
-      appPath = require(path.join(__dirname, '..', appName, 'node_modules', 'electron'));
-      args = [path.join(__dirname, '..', appName)];
+      appPath = require(path.join(__dirname, '..', 'node_modules', 'electron'));
+      args = [path.join(__dirname, '..')];
     }
 
     this.timeout(process.env.E2E_TIMEOUT || 60 * 1000);
