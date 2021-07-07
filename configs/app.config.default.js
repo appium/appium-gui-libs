@@ -1,18 +1,12 @@
-import path from 'path';
-
 const config = {
   platform: process.platform,
   languages: ['en', 'de', 'ru', 'ja', 'zh-CN', 'ko', 'hi', 'kn', 'ml-IN', 'pa-IN', 'te', 'pt-BR'],
   namespace: 'translation',
 };
 
-function getI18NextOptions (settings, config) {
+function getI18NextOptions (settings, config, backend) {
   return {
-    backend: {
-      loadPath: path.join(__dirname, 'locales/{{lng}}/{{ns}}.json'),
-      addPath: path.join(__dirname, 'locales/{{lng}}/{{ns}}.json'),
-      jsonIndent: 2,
-    },
+    backend,
     // debug: true,
     // saveMissing: true,
     interpolation: {
