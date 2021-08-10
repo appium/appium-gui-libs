@@ -152,7 +152,9 @@ export function makeOpenBrowserWindow ({BrowserWindow, Menu, i18n}) {
       frame: 'customButtonsOnHover',
       webPreferences: {
         devTools: true,
-        nodeIntegration: true
+        nodeIntegration: true,
+        contextIsolation: false,
+        enableRemoteModule: true,
       },
     };
 
