@@ -2,18 +2,17 @@ export default class BasePage {
 
   constructor (client) {
     this.client = client;
-    this.originalUrl = client.url();
   }
 
   async open (path) {
-    const url = await this.client.url();
-    this.originalUrl = url.value;
-    await this.client.url(`${this.originalUrl}${path}`);
+    const url = await this.client.getUrl();
+    this.originalUrl = url;
+    await this.client.navigateTo(`${this.originalUrl}${path}`);
   }
 
   async goHome () {
     if (this.originalUrl) {
-      await this.client.url(this.originalUrl);
+      await this.client.navigateTo(this.originalUrl);
     }
   }
 

@@ -42,8 +42,8 @@ export function e2eBefore ({appName, log, Application, fs}) {
     const client = this.app.client;
     log.info(`App started; waiting for splash page to go away`);
     await retryInterval(20, 1000, async function () {
-      const handles = (await client.windowHandles()).value;
-      await client.window(handles[0]);
+      const handles = await client.getWindowHandles();
+      await client.switchToWindow(handles[0]);
       (await client.getUrl()).should.include('index.html');
     });
     log.info(`App ready for automation`);
