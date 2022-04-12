@@ -178,18 +178,41 @@ function macMenuHelp ({i18n, shell}) {
   };
 }
 
-menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow, config, shell}) => [
+menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow, config, shell, fs}) => [
   macMenuAppium({dialog, i18n, app, checkNewUpdates, extraMenus}),
+  macMenuFile({i18n, mainWindow, dialog, fs}),
   macMenuEdit({i18n}),
   macMenuView({i18n, mainWindow, config}),
   macMenuWindow({i18n}),
   macMenuHelp({i18n, shell}),
 ];
 
-function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates}) {
+function macMenuFile ({i18n, mainWindow, dialog, fs}) {
+  let fileSubmenu = [{
+    label: i18n.t('Open'),
+    accelerator: 'Command+O',
+    click: () => {
+      dialog.showOpenDialog({ properties: ['openFile'], extensions: ['appium'] })
+        .then(function ({canceled, filePaths}) {
+          if (!canceled) {
+            const filePath = filePaths[0];
+            mainWindow.webContents.send('set-state', fs.readFileSync(filePath, 'utf8'));
+          }
+        });
+    },
+  }];
+
+  return {
+    label: i18n.t('&File'),
+    submenu: fileSubmenu,
+  };
+}
+
+function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, fs}) {
   let fileSubmenu = [{
     label: i18n.t('&Open'),
-    accelerator: 'Ctrl+O'
+    accelerator: 'Ctrl+O',
+    // click: () => // TODO: Handle Windows + Linux opener
   }, {
     label: i18n.t('&About Appium'),
     click: getShowAppInfoClickAction({dialog, i18n, app}),
@@ -284,23 +307,23 @@ function otherMenuHelp ({i18n, shell}) {
   };
 }
 
-menuTemplates.other = ({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell}) => [
-  otherMenuFile({i18n, dialog, app, mainWindow, checkNewUpdates}),
+menuTemplates.other = ({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell, fs}) => [
+  otherMenuFile({i18n, dialog, app, mainWindow, checkNewUpdates, fs}),
   otherMenuView({i18n, mainWindow, config}),
   otherMenuHelp({i18n, shell})
 ];
 
-export function rebuildMenus ({mainWindow, config, Menu, dialog, i18n, app, checkNewUpdates, extraMacMenus, shell}) {
+export function rebuildMenus ({mainWindow, config, Menu, dialog, i18n, app, checkNewUpdates, extraMacMenus, shell, fs}) {
   if (!mainWindow) {
     return;
   }
 
   if (config.platform === 'darwin') {
-    const template = menuTemplates.mac({dialog, i18n, app, checkNewUpdates, extraMenus: extraMacMenus, mainWindow, config, shell});
+    const template = menuTemplates.mac({dialog, i18n, app, checkNewUpdates, extraMenus: extraMacMenus, mainWindow, config, shell, fs});
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
   } else {
-    const template = menuTemplates.other({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell});
+    const template = menuTemplates.other({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell, fs});
     const menu = Menu.buildFromTemplate(template);
     mainWindow.setMenu(menu);
   }
