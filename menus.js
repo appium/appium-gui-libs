@@ -196,7 +196,7 @@ function macMenuFile ({i18n, mainWindow, dialog, fs}) {
         .then(function ({canceled, filePaths}) {
           if (!canceled) {
             const filePath = filePaths[0];
-            mainWindow.webContents.send('set-state', fs.readFileSync(filePath, 'utf8'));
+            mainWindow.webContents.send('set-filepath', filePath);
           }
         });
     },
