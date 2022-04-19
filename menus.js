@@ -178,9 +178,9 @@ function macMenuHelp ({i18n, shell}) {
   };
 }
 
-menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow, config, shell, fs}) => [
+menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow, config, shell}) => [
   macMenuAppium({dialog, i18n, app, checkNewUpdates, extraMenus}),
-  macMenuFile({i18n, mainWindow, dialog, fs}),
+  macMenuFile({i18n, mainWindow, dialog}),
   macMenuEdit({i18n}),
   macMenuView({i18n, mainWindow, config}),
   macMenuWindow({i18n}),
@@ -197,7 +197,18 @@ function openFileCallback (mainWindow, dialog) {
     });
 };
 
-function macMenuFile ({i18n, mainWindow, dialog, fs}) {
+function saveAsCallback (mainWindow, dialog, i18n) {
+  dialog.showSaveDialog({
+    title: i18n.t('Save As'),
+    filters: [{ name: 'Appium', extensions: ['appium'] }],
+  }).then(({ canceled, filePath }) => {
+    if (!canceled) {
+      mainWindow.webContents.send('save-file', filePath);
+    }
+  });
+}
+
+function macMenuFile ({i18n, mainWindow, dialog}) {
   // TODO: This should be only available in inspector and not desktop
   let fileSubmenu = [{
     label: i18n.t('Open'),
@@ -206,10 +217,11 @@ function macMenuFile ({i18n, mainWindow, dialog, fs}) {
   }, {
     label: i18n.t('Save'),
     accelerator: 'Command+S',
-    click: () => {
-      // TODO: Handle case where there is no save path so fallback to "Save As"
-      mainWindow.webContents.send('save-file');
-    },
+    click: () => mainWindow.webContents.send('save-file'),
+  }, {
+    label: i18n.t('Save As'),
+    accelerator: 'Command+Shift+S',
+    click: () => saveAsCallback(mainWindow, dialog, i18n),
   }];
 
   return {
@@ -218,15 +230,20 @@ function macMenuFile ({i18n, mainWindow, dialog, fs}) {
   };
 }
 
-function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, fs}) {
+function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates}) {
   let fileSubmenu = [{
-    label: i18n.t('&Open'),
+    label: i18n.t('Open'),
     accelerator: 'Ctrl+O',
-    // click: () => // TODO: Handle Windows + Linux opener
+    click: () => openFileCallback(mainWindow, dialog),
   }, {
-    label: i18n.t('&Save'),
+    label: i18n.t('Save'),
     accelerator: 'Ctrl+S',
+    click: () => mainWindow.webContents.send('save-file'),
   }, {
+    label: i18n.t('Save As'),
+    accelerator: 'Ctrl+Shift+S',
+    click: () => saveAsCallback(mainWindow, dialog, i18n),
+  },{
     label: i18n.t('&About Appium'),
     click: getShowAppInfoClickAction({dialog, i18n, app}),
   }, {
@@ -320,23 +337,23 @@ function otherMenuHelp ({i18n, shell}) {
   };
 }
 
-menuTemplates.other = ({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell, fs}) => [
-  otherMenuFile({i18n, dialog, app, mainWindow, checkNewUpdates, fs}),
+menuTemplates.other = ({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell}) => [
+  otherMenuFile({i18n, dialog, app, mainWindow, checkNewUpdates}),
   otherMenuView({i18n, mainWindow, config}),
   otherMenuHelp({i18n, shell})
 ];
 
-export function rebuildMenus ({mainWindow, config, Menu, dialog, i18n, app, checkNewUpdates, extraMacMenus, shell, fs}) {
+export function rebuildMenus ({mainWindow, config, Menu, dialog, i18n, app, checkNewUpdates, extraMacMenus, shell}) {
   if (!mainWindow) {
     return;
   }
 
   if (config.platform === 'darwin') {
-    const template = menuTemplates.mac({dialog, i18n, app, checkNewUpdates, extraMenus: extraMacMenus, mainWindow, config, shell, fs});
+    const template = menuTemplates.mac({dialog, i18n, app, checkNewUpdates, extraMenus: extraMacMenus, mainWindow, config, shell});
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
   } else {
-    const template = menuTemplates.other({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell, fs});
+    const template = menuTemplates.other({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell});
     const menu = Menu.buildFromTemplate(template);
     mainWindow.setMenu(menu);
   }
