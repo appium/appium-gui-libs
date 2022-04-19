@@ -187,18 +187,28 @@ menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow
   macMenuHelp({i18n, shell}),
 ];
 
+function openFileCallback (mainWindow, dialog) {
+  dialog.showOpenDialog({ properties: ['openFile'], extensions: ['appium'] })
+    .then(function ({canceled, filePaths}) {
+      if (!canceled) {
+        const filePath = filePaths[0];
+        mainWindow.webContents.send('set-filepath', filePath);
+      }
+    });
+};
+
 function macMenuFile ({i18n, mainWindow, dialog, fs}) {
+  // TODO: This should be only available in inspector and not desktop
   let fileSubmenu = [{
     label: i18n.t('Open'),
     accelerator: 'Command+O',
+    click: () => openFileCallback(mainWindow, dialog),
+  }, {
+    label: i18n.t('Save'),
+    accelerator: 'Command+S',
     click: () => {
-      dialog.showOpenDialog({ properties: ['openFile'], extensions: ['appium'] })
-        .then(function ({canceled, filePaths}) {
-          if (!canceled) {
-            const filePath = filePaths[0];
-            mainWindow.webContents.send('set-filepath', filePath);
-          }
-        });
+      // TODO: Handle case where there is no save path so fallback to "Save As"
+      mainWindow.webContents.send('save-file');
     },
   }];
 
@@ -213,6 +223,9 @@ function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, fs}) {
     label: i18n.t('&Open'),
     accelerator: 'Ctrl+O',
     // click: () => // TODO: Handle Windows + Linux opener
+  }, {
+    label: i18n.t('&Save'),
+    accelerator: 'Ctrl+S',
   }, {
     label: i18n.t('&About Appium'),
     click: getShowAppInfoClickAction({dialog, i18n, app}),
