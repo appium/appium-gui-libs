@@ -188,7 +188,7 @@ menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow
 ];
 
 function openFileCallback (mainWindow, dialog) {
-  dialog.showOpenDialog({ properties: ['openFile'], extensions: ['appium'] })
+  dialog.showOpenDialog({ properties: ['openFile'], extensions: ['appiumsession'] })
     .then(function ({canceled, filePaths}) {
       if (!canceled) {
         const filePath = filePaths[0];
@@ -200,7 +200,7 @@ function openFileCallback (mainWindow, dialog) {
 function saveAsCallback (mainWindow, dialog, i18n) {
   dialog.showSaveDialog({
     title: i18n.t('Save As'),
-    filters: [{ name: 'Appium', extensions: ['appium'] }],
+    filters: [{ name: 'Appium', extensions: ['appiumsession'] }],
   }).then(({ canceled, filePath }) => {
     if (!canceled) {
       mainWindow.webContents.send('save-file', filePath);
