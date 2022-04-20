@@ -1,4 +1,4 @@
-export function setupMainWindow ({splashWindow, splashUrl, mainWindow, mainUrl, isDev, Menu, i18n, rebuildMenus, settings, webContents}) {
+export function setupMainWindow ({splashWindow, splashUrl, mainWindow, mainUrl, isDev, Menu, i18n, rebuildMenus, settings, webContents, isInspector=false}) {
 
   if (splashWindow) {
     splashWindow.loadURL(splashUrl);
@@ -36,7 +36,7 @@ export function setupMainWindow ({splashWindow, splashUrl, mainWindow, mainUrl, 
   });
 
   i18n.on('languageChanged', async (languageCode) => {
-    rebuildMenus();
+    rebuildMenus(null, isInspector);
     await settings.set('PREFERRED_LANGUAGE', languageCode);
     webContents.getAllWebContents().forEach((wc) => {
       wc.send('appium-language-changed', {
@@ -45,5 +45,5 @@ export function setupMainWindow ({splashWindow, splashUrl, mainWindow, mainUrl, 
     });
   });
 
-  rebuildMenus(mainWindow);
+  rebuildMenus(mainWindow, isInspector);
 }
