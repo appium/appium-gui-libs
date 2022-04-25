@@ -209,7 +209,6 @@ function saveAsCallback (mainWindow, dialog, i18n) {
 }
 
 function macMenuFile ({i18n, mainWindow, dialog}) {
-  // TODO: This should be only available in inspector and not desktop
   let fileSubmenu = [{
     label: i18n.t('Open'),
     accelerator: 'Command+O',
@@ -230,7 +229,7 @@ function macMenuFile ({i18n, mainWindow, dialog}) {
   };
 }
 
-function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates}) {
+function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, isInspector}) {
   const fileSavingOperations = [{
     label: i18n.t('Open'),
     accelerator: 'Ctrl+O',
