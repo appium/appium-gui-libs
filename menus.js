@@ -192,7 +192,7 @@ function openFileCallback (mainWindow, dialog) {
     .then(function ({canceled, filePaths}) {
       if (!canceled) {
         const filePath = filePaths[0];
-        mainWindow.webContents.send('set-filepath', filePath);
+        mainWindow.webContents.send('open-file', filePath);
       }
     });
 };
