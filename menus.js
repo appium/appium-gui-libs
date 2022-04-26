@@ -178,30 +178,87 @@ function macMenuHelp ({i18n, shell}) {
   };
 }
 
-menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow, config, shell}) => [
+menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow, config, shell, shouldShowFileMenu}) => [
   macMenuAppium({dialog, i18n, app, checkNewUpdates, extraMenus}),
+  ...(shouldShowFileMenu ? [macMenuFile({i18n, mainWindow, dialog, shouldShowFileMenu})]: []),
   macMenuEdit({i18n}),
   macMenuView({i18n, mainWindow, config}),
   macMenuWindow({i18n}),
   macMenuHelp({i18n, shell}),
 ];
 
-function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates}) {
-  let fileSubmenu = [{
-    label: i18n.t('&Open'),
-    accelerator: 'Ctrl+O'
-  }, {
-    label: i18n.t('&About Appium'),
-    click: getShowAppInfoClickAction({dialog, i18n, app}),
-  }, {
-    type: 'separator'
-  }, {
-    label: i18n.t('&Close'),
-    accelerator: 'Ctrl+W',
-    click () {
-      mainWindow.close();
+function openFileCallback (mainWindow, dialog) {
+  dialog.showOpenDialog({ properties: ['openFile'], extensions: ['appiumsession'] })
+    .then(function ({canceled, filePaths}) {
+      if (!canceled) {
+        const filePath = filePaths[0];
+        mainWindow.webContents.send('open-file', filePath);
+      }
+    });
+};
+
+function saveAsCallback (mainWindow, dialog, i18n) {
+  dialog.showSaveDialog({
+    title: i18n.t('Save As'),
+    filters: [{ name: 'Appium', extensions: ['appiumsession'] }],
+  }).then(({ canceled, filePath }) => {
+    if (!canceled) {
+      mainWindow.webContents.send('save-file', filePath);
     }
+  });
+}
+
+function macMenuFile ({i18n, mainWindow, dialog}) {
+  let fileSubmenu = [{
+    label: i18n.t('Open'),
+    accelerator: 'Command+O',
+    click: () => openFileCallback(mainWindow, dialog),
+  }, {
+    label: i18n.t('Save'),
+    accelerator: 'Command+S',
+    click: () => mainWindow.webContents.send('save-file'),
+  }, {
+    label: i18n.t('Save As'),
+    accelerator: 'Command+Shift+S',
+    click: () => saveAsCallback(mainWindow, dialog, i18n),
   }];
+
+  return {
+    label: i18n.t('&File'),
+    submenu: fileSubmenu,
+  };
+}
+
+function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, shouldShowFileMenu}) {
+  const fileSavingOperations = [{
+    label: i18n.t('Open'),
+    accelerator: 'Ctrl+O',
+    click: () => openFileCallback(mainWindow, dialog),
+  }, {
+    label: i18n.t('Save'),
+    accelerator: 'Ctrl+S',
+    click: () => mainWindow.webContents.send('save-file'),
+  }, {
+    label: i18n.t('Save As'),
+    accelerator: 'Ctrl+Shift+S',
+    click: () => saveAsCallback(mainWindow, dialog, i18n),
+  }];
+
+  let fileSubmenu = [
+    ...(shouldShowFileMenu ? fileSavingOperations : []),
+    {
+      label: i18n.t('&About Appium'),
+      click: getShowAppInfoClickAction({dialog, i18n, app}),
+    }, {
+      type: 'separator'
+    }, {
+      label: i18n.t('&Close'),
+      accelerator: 'Ctrl+W',
+      click () {
+        mainWindow.close();
+      }
+    }
+  ];
 
   // If it's Windows, add a 'Check for Updates' menu option
   if (process.platform === 'win32') {
@@ -284,23 +341,23 @@ function otherMenuHelp ({i18n, shell}) {
   };
 }
 
-menuTemplates.other = ({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell}) => [
-  otherMenuFile({i18n, dialog, app, mainWindow, checkNewUpdates}),
+menuTemplates.other = ({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell, shouldShowFileMenu}) => [
+  otherMenuFile({i18n, dialog, app, mainWindow, checkNewUpdates, shouldShowFileMenu}),
   otherMenuView({i18n, mainWindow, config}),
   otherMenuHelp({i18n, shell})
 ];
 
-export function rebuildMenus ({mainWindow, config, Menu, dialog, i18n, app, checkNewUpdates, extraMacMenus, shell}) {
+export function rebuildMenus ({mainWindow, config, Menu, dialog, i18n, app, checkNewUpdates, extraMacMenus, shell, shouldShowFileMenu}) {
   if (!mainWindow) {
     return;
   }
 
   if (config.platform === 'darwin') {
-    const template = menuTemplates.mac({dialog, i18n, app, checkNewUpdates, extraMenus: extraMacMenus, mainWindow, config, shell});
+    const template = menuTemplates.mac({dialog, i18n, app, checkNewUpdates, extraMenus: extraMacMenus, mainWindow, config, shell, shouldShowFileMenu});
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
   } else {
-    const template = menuTemplates.other({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell});
+    const template = menuTemplates.other({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell, shouldShowFileMenu});
     const menu = Menu.buildFromTemplate(template);
     mainWindow.setMenu(menu);
   }
