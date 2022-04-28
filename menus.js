@@ -187,14 +187,15 @@ menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow
   macMenuHelp({i18n, shell}),
 ];
 
-function openFileCallback (mainWindow, dialog) {
-  dialog.showOpenDialog({ properties: ['openFile'], extensions: ['appiumsession'] })
-    .then(function ({canceled, filePaths}) {
-      if (!canceled) {
-        const filePath = filePaths[0];
-        mainWindow.webContents.send('open-file', filePath);
-      }
-    });
+async function openFileCallback (mainWindow, dialog) {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    extensions: ['appiumsession'],
+  })
+  if (!canceled) {
+    const filePath = filePaths[0];
+    mainWindow.webContents.send('open-file', filePath);
+  }
 };
 
 function saveAsCallback (mainWindow, dialog, i18n) {
