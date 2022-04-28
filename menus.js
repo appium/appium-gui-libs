@@ -1,3 +1,5 @@
+import { APPIUM_SESSION_EXTENSION } from "../app/main/helpers";
+
 let menuTemplates = {mac: {}, other: {}};
 
 function languageMenu ({config, i18n}) {
@@ -190,7 +192,9 @@ menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow
 async function openFileCallback (mainWindow, dialog) {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openFile'],
-    extensions: ['appiumsession'],
+    filters: [
+      {name: 'Appium Session Files', extensions: [APPIUM_SESSION_EXTENSION]}
+    ],
   })
   if (!canceled) {
     const filePath = filePaths[0];
@@ -198,15 +202,14 @@ async function openFileCallback (mainWindow, dialog) {
   }
 };
 
-function saveAsCallback (mainWindow, dialog, i18n) {
-  dialog.showSaveDialog({
+async function saveAsCallback (mainWindow, dialog, i18n) {
+  const { canceled, filePath } = await dialog.showSaveDialog({
     title: i18n.t('Save As'),
-    filters: [{ name: 'Appium', extensions: ['appiumsession'] }],
-  }).then(({ canceled, filePath }) => {
-    if (!canceled) {
-      mainWindow.webContents.send('save-file', filePath);
-    }
+    filters: [{ name: 'Appium', extensions: [APPIUM_SESSION_EXTENSION] }],
   });
+  if (!canceled) {
+    mainWindow.webContents.send('save-file', filePath);
+  }
 }
 
 function macMenuFile ({i18n, mainWindow, dialog}) {
