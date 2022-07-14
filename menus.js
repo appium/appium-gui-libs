@@ -180,9 +180,9 @@ function macMenuHelp ({i18n, shell}) {
   };
 }
 
-menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, mainWindow, config, shell, shouldShowFileMenu}) => [
+menuTemplates.mac = ({dialog, i18n, app, checkNewUpdates, extraMenus, extraFileMenus, mainWindow, config, shell, shouldShowFileMenu}) => [
   macMenuAppium({dialog, i18n, app, checkNewUpdates, extraMenus}),
-  ...(shouldShowFileMenu ? [macMenuFile({i18n, mainWindow, dialog, shouldShowFileMenu})]: []),
+  ...(shouldShowFileMenu ? [macMenuFile({i18n, mainWindow, dialog, shouldShowFileMenu, extraFileMenus})]: []),
   macMenuEdit({i18n}),
   macMenuView({i18n, mainWindow, config}),
   macMenuWindow({i18n}),
@@ -212,7 +212,7 @@ async function saveAsCallback (mainWindow, dialog, i18n) {
   }
 }
 
-function macMenuFile ({i18n, mainWindow, dialog}) {
+function macMenuFile ({i18n, mainWindow, dialog, extraFileMenus}) {
   let fileSubmenu = [{
     label: i18n.t('Open'),
     accelerator: 'Command+O',
@@ -227,13 +227,17 @@ function macMenuFile ({i18n, mainWindow, dialog}) {
     click: () => saveAsCallback(mainWindow, dialog, i18n),
   }];
 
+  for (const extraMenu of extraFileMenus) {
+    fileSubmenu.splice(extraMenu.index, 0, extraMenu.menu);
+  }
+
   return {
     label: i18n.t('&File'),
     submenu: fileSubmenu,
   };
 }
 
-function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, shouldShowFileMenu}) {
+function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, extraFileMenus, shouldShowFileMenu}) {
   const fileSavingOperations = [{
     label: i18n.t('Open'),
     accelerator: 'Ctrl+O',
@@ -264,6 +268,12 @@ function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, shouldS
     }
   ];
 
+  if (shouldShowFileMenu) {
+    for (const extraMenu of extraFileMenus) {
+      fileSubmenu.splice(extraMenu.index, 0, extraMenu.menu);
+    }
+  }
+
   // If it's Windows, add a 'Check for Updates' menu option
   if (process.platform === 'win32') {
     fileSubmenu.splice(1, 0, {
@@ -273,6 +283,7 @@ function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, shouldS
       }
     });
   }
+
 
   return {
     label: i18n.t('&File'),
@@ -345,23 +356,23 @@ function otherMenuHelp ({i18n, shell}) {
   };
 }
 
-menuTemplates.other = ({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell, shouldShowFileMenu}) => [
-  otherMenuFile({i18n, dialog, app, mainWindow, checkNewUpdates, shouldShowFileMenu}),
+menuTemplates.other = ({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell, shouldShowFileMenu, extraFileMenus}) => [
+  otherMenuFile({i18n, dialog, app, mainWindow, checkNewUpdates, shouldShowFileMenu, extraFileMenus}),
   otherMenuView({i18n, mainWindow, config}),
   otherMenuHelp({i18n, shell})
 ];
 
-export function rebuildMenus ({mainWindow, config, Menu, dialog, i18n, app, checkNewUpdates, extraMacMenus, shell, shouldShowFileMenu}) {
+export function rebuildMenus ({mainWindow, config, Menu, dialog, i18n, app, checkNewUpdates, extraMacMenus, extraFileMenus, extraMacFileMenus, shell, shouldShowFileMenu}) {
   if (!mainWindow) {
     return;
   }
 
   if (config.platform === 'darwin') {
-    const template = menuTemplates.mac({dialog, i18n, app, checkNewUpdates, extraMenus: extraMacMenus, mainWindow, config, shell, shouldShowFileMenu});
+    const template = menuTemplates.mac({dialog, i18n, app, checkNewUpdates, extraMenus: extraMacMenus, extraFileMenus: extraMacFileMenus, mainWindow, config, shell, shouldShowFileMenu});
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
   } else {
-    const template = menuTemplates.other({mainWindow, i18n, dialog, app, checkNewUpdates, config, shell, shouldShowFileMenu});
+    const template = menuTemplates.other({mainWindow, i18n, dialog, app, extraFileMenus, checkNewUpdates, config, shell, shouldShowFileMenu});
     const menu = Menu.buildFromTemplate(template);
     mainWindow.setMenu(menu);
   }
