@@ -204,7 +204,7 @@ async function openFileCallback (mainWindow, dialog) {
 
 async function saveAsCallback (mainWindow, dialog, i18n) {
   const { canceled, filePath } = await dialog.showSaveDialog({
-    title: i18n.t('Save As'),
+    title: i18n.t('saveAs'),
     filters: [{ name: 'Appium', extensions: [APPIUM_SESSION_EXTENSION] }],
   });
   if (!canceled) {
@@ -222,7 +222,7 @@ function macMenuFile ({i18n, mainWindow, dialog, extraFileMenus}) {
     accelerator: 'Command+S',
     click: () => mainWindow.webContents.send('save-file'),
   }, {
-    label: i18n.t('Save As'),
+    label: i18n.t('saveAs'),
     accelerator: 'Command+Shift+S',
     click: () => saveAsCallback(mainWindow, dialog, i18n),
   }];
@@ -247,7 +247,7 @@ function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, extraFi
     accelerator: 'Ctrl+S',
     click: () => mainWindow.webContents.send('save-file'),
   }, {
-    label: i18n.t('Save As'),
+    label: i18n.t('saveAs'),
     accelerator: 'Ctrl+Shift+S',
     click: () => saveAsCallback(mainWindow, dialog, i18n),
   }];
