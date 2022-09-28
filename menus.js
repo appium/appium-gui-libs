@@ -204,7 +204,7 @@ async function openFileCallback (mainWindow, dialog) {
 
 async function saveAsCallback (mainWindow, dialog, i18n) {
   const { canceled, filePath } = await dialog.showSaveDialog({
-    title: i18n.t('Save As'),
+    title: i18n.t('saveAs'),
     filters: [{ name: 'Appium', extensions: [APPIUM_SESSION_EXTENSION] }],
   });
   if (!canceled) {
@@ -222,7 +222,7 @@ function macMenuFile ({i18n, mainWindow, dialog, extraFileMenus}) {
     accelerator: 'Command+S',
     click: () => mainWindow.webContents.send('save-file'),
   }, {
-    label: i18n.t('Save As'),
+    label: i18n.t('saveAs'),
     accelerator: 'Command+Shift+S',
     click: () => saveAsCallback(mainWindow, dialog, i18n),
   }];
@@ -232,7 +232,7 @@ function macMenuFile ({i18n, mainWindow, dialog, extraFileMenus}) {
   }
 
   return {
-    label: i18n.t('&File'),
+    label: '&'+i18n.t('File'),
     submenu: fileSubmenu,
   };
 }
@@ -247,7 +247,7 @@ function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, extraFi
     accelerator: 'Ctrl+S',
     click: () => mainWindow.webContents.send('save-file'),
   }, {
-    label: i18n.t('Save As'),
+    label: i18n.t('saveAs'),
     accelerator: 'Ctrl+Shift+S',
     click: () => saveAsCallback(mainWindow, dialog, i18n),
   }];
@@ -255,12 +255,12 @@ function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, extraFi
   let fileSubmenu = [
     ...(shouldShowFileMenu ? fileSavingOperations : []),
     {
-      label: i18n.t('&About Appium'),
+      label: '&'+i18n.t('About Appium'),
       click: getShowAppInfoClickAction({dialog, i18n, app}),
     }, {
       type: 'separator'
     }, {
-      label: i18n.t('&Close'),
+      label: '&'+i18n.t('Close'),
       accelerator: 'Ctrl+W',
       click () {
         mainWindow.close();
@@ -277,7 +277,7 @@ function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, extraFi
   // If it's Windows, add a 'Check for Updates' menu option
   if (process.platform === 'win32') {
     fileSubmenu.splice(1, 0, {
-      label: i18n.t('&Check for updates'),
+      label: '&'+i18n.t('Check for updates'),
       click () {
         checkNewUpdates(true);
       }
@@ -286,7 +286,7 @@ function otherMenuFile ({i18n, dialog, app, mainWindow, checkNewUpdates, extraFi
 
 
   return {
-    label: i18n.t('&File'),
+    label: '&'+i18n.t('File'),
     submenu: fileSubmenu,
   };
 }
@@ -308,7 +308,7 @@ function otherMenuView ({i18n, mainWindow, config}) {
 
   if (process.env.NODE_ENV === 'development') {
     submenu.push({
-      label: i18n.t('&Reload'),
+      label: '&'+i18n.t('Reload'),
       accelerator: 'Ctrl+R',
       click () {
         mainWindow.webContents.reload();
@@ -324,7 +324,7 @@ function otherMenuView ({i18n, mainWindow, config}) {
   }
 
   return {
-    label: i18n.t('&View'),
+    label: '&'+i18n.t('View'),
     submenu,
   };
 }
